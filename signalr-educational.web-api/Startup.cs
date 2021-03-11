@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SignalR.Educational.WebApi.Hubs;
 
 namespace SignalR.Educational.WebApi
 {
@@ -20,7 +21,10 @@ namespace SignalR.Educational.WebApi
         {
             services.AddControllers();
 
-            services.AddSignalR();
+            services.AddSignalR(o =>
+            {
+                o.EnableDetailedErrors = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,11 +39,17 @@ namespace SignalR.Educational.WebApi
 
             app.UseRouting();
 
+            app.UseCors(c => c.WithOrigins("http://localhost:4200")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<LogHub>("/log");
             });
         }
     }
